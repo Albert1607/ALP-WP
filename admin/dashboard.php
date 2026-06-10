@@ -2,23 +2,23 @@
 require_once '../config/database.php';
 cek_admin();
 
-// Total Buku
+
 $q1 = mysqli_query($conn, "SELECT COUNT(*) as total FROM buku");
 $total_buku = mysqli_fetch_assoc($q1)['total'];
 
-// Total Anggota
+
 $q2 = mysqli_query($conn, "SELECT COUNT(*) as total FROM users WHERE role='member'");
 $total_anggota = mysqli_fetch_assoc($q2)['total'];
 
-// Peminjaman Aktif
+
 $q3 = mysqli_query($conn, "SELECT COUNT(*) as total FROM peminjaman WHERE status='aktif'");
 $peminjaman_aktif = mysqli_fetch_assoc($q3)['total'];
 
-// Denda Belum Bayar
+
 $q4 = mysqli_query($conn, "SELECT COUNT(*) as total FROM denda WHERE status='belum_bayar'");
 $denda_belum = mysqli_fetch_assoc($q4)['total'];
 
-// Peminjaman Terbaru
+
 $q5 = mysqli_query($conn, "SELECT p.*, u.name FROM peminjaman p JOIN users u ON p.user_id = u.user_id ORDER BY p.tgl_pinjam DESC LIMIT 5");
 ?>
 <!DOCTYPE html>

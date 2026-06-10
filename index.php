@@ -30,7 +30,7 @@ $buku_populer = [
 </head>
 <body>
 
-<!-- NAVBAR -->
+
 <nav class="navbar">
     <div class="container">
         <div class="logo">📚 <?= $site_name ?></div>
@@ -47,7 +47,7 @@ $buku_populer = [
     </div>
 </nav>
 
-<!-- HERO -->
+
 <section class="hero" id="beranda">
     <div class="container">
         <div class="hero-text">
@@ -59,7 +59,7 @@ $buku_populer = [
             </div>
         </div>
 
-        <!-- Statistik -->
+        
         <div class="hero-stats">
             <div class="stat-box">
                 <div class="stat-angka"><?= number_format($total_buku) ?></div>
@@ -77,7 +77,7 @@ $buku_populer = [
     </div>
 </section>
 
-<!-- KATEGORI -->
+
 <section class="section bg-abu" id="kategori">
     <div class="container">
         <h2 class="section-title">Kategori Buku</h2>
@@ -94,7 +94,7 @@ $buku_populer = [
     </div>
 </section>
 
-<!-- KOLEKSI BUKU -->
+
 <section class="section" id="buku">
     <div class="container">
         <h2 class="section-title">Buku Populer</h2>
@@ -124,7 +124,7 @@ $buku_populer = [
     </div>
 </section>
 
-<!-- CARA KERJA -->
+
 <section class="section bg-abu" id="cara-kerja">
     <div class="container">
         <h2 class="section-title">Cara Kerja</h2>
@@ -155,7 +155,7 @@ $buku_populer = [
     </div>
 </section>
 
-<!-- CTA -->
+
 <section class="cta-section">
     <div class="container">
         <h2>Siap Mulai Membaca?</h2>
@@ -164,7 +164,7 @@ $buku_populer = [
     </div>
 </section>
 
-<!-- FOOTER -->
+
 <footer class="footer">
     <div class="container">
         <div class="footer-isi">

@@ -4,17 +4,17 @@ cek_member();
 
 $user_id = $_SESSION['user_id'];
 
-// Stat 1: Peminjaman Aktif
+
 $query1 = "SELECT COUNT(*) AS total FROM peminjaman WHERE user_id = $user_id AND status = 'aktif'";
 $result1 = mysqli_query($conn, $query1);
 $aktif = mysqli_fetch_assoc($result1)['total'];
 
-// Stat 2: Total Dipinjam (semua peminjaman user ini)
+
 $query2 = "SELECT COUNT(*) AS total FROM peminjaman WHERE user_id = $user_id";
 $result2 = mysqli_query($conn, $query2);
 $total_pinjam = mysqli_fetch_assoc($result2)['total'];
 
-// Stat 3: Denda Belum Bayar
+
 $query3 = "SELECT COALESCE(SUM(d.total), 0) AS total_denda 
            FROM denda d 
            JOIN peminjaman p ON d.peminjaman_id = p.peminjaman_id 
@@ -22,7 +22,7 @@ $query3 = "SELECT COALESCE(SUM(d.total), 0) AS total_denda
 $result3 = mysqli_query($conn, $query3);
 $total_denda = mysqli_fetch_assoc($result3)['total_denda'];
 
-// Tabel peminjaman aktif
+
 $query4 = "SELECT * FROM peminjaman WHERE user_id = $user_id AND status = 'aktif' ORDER BY tgl_pinjam DESC";
 $result4 = mysqli_query($conn, $query4);
 ?>
@@ -55,7 +55,7 @@ $result4 = mysqli_query($conn, $query4);
             <div class="user-info">Halo, <strong><?= $_SESSION['name'] ?></strong></div>
         </div>
 
-        <!-- Stat Cards -->
+        
         <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr);">
             <div class="stat-card">
                 <div class="stat-icon">📖</div>
@@ -74,7 +74,7 @@ $result4 = mysqli_query($conn, $query4);
             </div>
         </div>
 
-        <!-- Tabel Peminjaman Aktif -->
+        
         <div class="card">
             <div class="card-header">
                 <h2>Peminjaman Aktif</h2>

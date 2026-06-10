@@ -1,7 +1,7 @@
 <?php
 require_once 'config/database.php';
 
-// Kalau sudah login, arahkan ke dashboard
+
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: admin/dashboard.php");

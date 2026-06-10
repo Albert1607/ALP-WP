@@ -2,7 +2,7 @@
 require_once '../config/database.php';
 cek_member();
 
-// Ambil semua buku dengan nama kategori
+
 $query = "SELECT b.*, k.nama AS nama_kategori 
           FROM buku b 
           JOIN kategori k ON b.kategori_id = k.kategori_id 

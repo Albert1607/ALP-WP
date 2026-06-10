@@ -5,7 +5,7 @@ cek_admin();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = (int)$_POST['user_id'];
     
-    // Convert dd-mm-yyyy or dd/mm/yyyy to YYYY-MM-DD for database
+    
     $raw_pinjam = str_replace('/', '-', $_POST['tgl_pinjam']);
     $tgl_pinjam = date('Y-m-d', strtotime($raw_pinjam));
     

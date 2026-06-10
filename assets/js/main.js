@@ -1,4 +1,4 @@
-// Navbar berubah warna saat di-scroll
+
 window.addEventListener('scroll', function() {
     var navbar = document.querySelector('.navbar');
     if (window.scrollY > 30) {
@@ -8,7 +8,7 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Smooth scroll untuk link anchor (#)
+
 document.querySelectorAll('a[href^="#"]').forEach(function(link) {
     link.addEventListener('click', function(e) {
         var target = document.querySelector(this.getAttribute('href'));

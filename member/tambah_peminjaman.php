@@ -6,7 +6,7 @@ $user_id = $_SESSION['user_id'];
 $preselected_buku_id = isset($_GET['buku_id']) ? (int)$_GET['buku_id'] : 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Convert dd-mm-yyyy or dd/mm/yyyy to YYYY-MM-DD for database
+    
     $raw_pinjam = str_replace('/', '-', $_POST['tgl_pinjam']);
     $tgl_pinjam = date('Y-m-d', strtotime($raw_pinjam));
     
@@ -18,11 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $buku_ids = $_POST['buku_id'];
         
-        // Simpan peminjaman baru
+        
         mysqli_query($conn, "INSERT INTO peminjaman (user_id, tgl_pinjam, tgl_kembali_rencana, status) VALUES ($user_id, '$tgl_pinjam', '$tgl_kembali_rencana', 'aktif')");
         $peminjaman_id = mysqli_insert_id($conn);
         
-        // Simpan ke detail peminjaman dan kurangi stok buku
+        
         foreach ($buku_ids as $buku_id) {
             $buku_id = (int)$buku_id;
             mysqli_query($conn, "INSERT INTO detail_peminjaman (peminjaman_id, buku_id, kondisi_awal, status) VALUES ($peminjaman_id, $buku_id, 'Baik', 'dipinjam')");
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Hitung default tanggal kembali rencana (hari ini + 7 hari) dalam format dd-mm-yyyy
+
 $default_kembali = date('d-m-Y', strtotime('+7 days'));
 ?>
 <!DOCTYPE html>

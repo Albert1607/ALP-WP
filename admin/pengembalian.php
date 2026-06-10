@@ -4,7 +4,7 @@ cek_admin();
 
 $id = (int)$_GET['id'];
 
-// Ambil data peminjaman & anggota
+
 $query = mysqli_query($conn, "SELECT p.*, u.name FROM peminjaman p JOIN users u ON p.user_id = u.user_id WHERE p.peminjaman_id = $id");
 $peminjaman = mysqli_fetch_assoc($query);
 
@@ -16,7 +16,7 @@ if (!$peminjaman) {
 $today = date('Y-m-d');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Tentukan status keterlambatan
+    
     $denda_keterlambatan = 0;
     $jumlah_hari = 0;
     if ($today > $peminjaman['tgl_kembali_rencana']) {
@@ -25,48 +25,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $tgl_aktual = new DateTime($today);
         $jumlah_hari = $tgl_rencana->diff($tgl_aktual)->days;
         
-        // Hitung total buku dalam transaksi ini
+        
         $q_buku = mysqli_query($conn, "SELECT COUNT(*) as total_buku FROM detail_peminjaman WHERE peminjaman_id = $id");
         $jml_buku = (int)mysqli_fetch_assoc($q_buku)['total_buku'];
         
-        $denda_harian = 10000; // Rp 10.000 per hari per buku
+        $denda_harian = 10000; 
         $denda_keterlambatan = $jumlah_hari * $denda_harian * $jml_buku;
     } else {
         $status_peminjaman = 'dikembalikan';
     }
     
-    // Update data peminjaman utama
+    
     mysqli_query($conn, "UPDATE peminjaman SET tgl_kembali_aktual = '$today', status = '$status_peminjaman' WHERE peminjaman_id = $id");
     
-    $kondisi_kembali_arr = $_POST['kondisi_kembali']; // Array dengan key detail_peminjaman_id
+    $kondisi_kembali_arr = $_POST['kondisi_kembali']; 
     $denda_kondisi = 0;
     
     foreach ($kondisi_kembali_arr as $dp_id => $kondisi) {
         $dp_id = (int)$dp_id;
         $kondisi = mysqli_real_escape_string($conn, $kondisi);
         
-        // Ambil data buku_id untuk update stok
+        
         $q_dp = mysqli_query($conn, "SELECT buku_id FROM detail_peminjaman WHERE detail_peminjaman_id = $dp_id");
         $dp_row = mysqli_fetch_assoc($q_dp);
         $buku_id = (int)$dp_row['buku_id'];
         
-        // Update detail peminjaman
+        
         mysqli_query($conn, "UPDATE detail_peminjaman SET status = 'dikembalikan', kondisi_kembali = '$kondisi' WHERE detail_peminjaman_id = $dp_id");
         
-        // Akumulasi denda kerusakan/kehilangan
+        
         if ($kondisi == 'Rusak') {
             $denda_kondisi += 100000;
         } elseif ($kondisi == 'Hilang') {
             $denda_kondisi += 1000000;
         }
         
-        // Logika Stok: Jika buku HILANG, stok di perpustakaan TIDAK bertambah kembali.
+        
         if ($kondisi != 'Hilang') {
             mysqli_query($conn, "UPDATE buku SET stok = stok + 1 WHERE buku_id = $buku_id");
         }
     }
     
-    // Hitung total denda gabungan
+    
     $total_denda = $denda_keterlambatan + $denda_kondisi;
     
     if ($total_denda > 0) {

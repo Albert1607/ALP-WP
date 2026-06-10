@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $phone    = mysqli_real_escape_string($conn, $_POST['phone']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // Cek email sudah ada atau belum
+    
     $cek = mysqli_query($conn, "SELECT user_id FROM users WHERE email = '$email'");
     if (mysqli_num_rows($cek) > 0) {
         $error = "Email sudah terdaftar!";

@@ -4,7 +4,7 @@ cek_member();
 
 $user_id = $_SESSION['user_id'];
 
-// Cek apakah ada parameter id
+
 if (!isset($_GET['id'])) {
     header("Location: peminjaman.php");
     exit;
@@ -12,7 +12,7 @@ if (!isset($_GET['id'])) {
 
 $peminjaman_id = (int) $_GET['id'];
 
-// Ambil data peminjaman & pastikan milik user ini
+
 $query = "SELECT * FROM peminjaman WHERE peminjaman_id = $peminjaman_id AND user_id = $user_id";
 $result = mysqli_query($conn, $query);
 
@@ -23,7 +23,7 @@ if (mysqli_num_rows($result) == 0) {
 
 $peminjaman = mysqli_fetch_assoc($result);
 
-// Ambil detail buku yang dipinjam
+
 $query_detail = "SELECT dp.*, b.judul, b.penulis 
                  FROM detail_peminjaman dp 
                  JOIN buku b ON dp.buku_id = b.buku_id 
@@ -59,7 +59,7 @@ $result_detail = mysqli_query($conn, $query_detail);
             <div class="user-info">Halo, <strong><?= $_SESSION['name'] ?></strong></div>
         </div>
 
-        <!-- Info Peminjaman -->
+        
         <div class="card">
             <div class="card-header">
                 <h2>Informasi Peminjaman</h2>
@@ -97,7 +97,7 @@ $result_detail = mysqli_query($conn, $query_detail);
             </table>
         </div>
 
-        <!-- Daftar Buku -->
+        
         <div class="card">
             <div class="card-header">
                 <h2>Daftar Buku Dipinjam</h2>

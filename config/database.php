@@ -1,5 +1,4 @@
 <?php
-// Koneksi ke database
 $host = "localhost";
 $user = "root";
 $pass = "root";
@@ -11,12 +10,12 @@ if (!$conn) {
     die("Koneksi gagal: " . mysqli_connect_error());
 }
 
-// Mulai session
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Fungsi cek login
+
 function cek_login() {
     if (!isset($_SESSION['user_id'])) {
         header("Location: /ALP-WP/login.php");
@@ -24,7 +23,7 @@ function cek_login() {
     }
 }
 
-// Fungsi cek admin
+
 function cek_admin() {
     cek_login();
     if ($_SESSION['role'] != 'admin') {
@@ -33,7 +32,7 @@ function cek_admin() {
     }
 }
 
-// Fungsi cek member
+
 function cek_member() {
     cek_login();
     if ($_SESSION['role'] != 'member') {

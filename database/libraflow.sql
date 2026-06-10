@@ -1,19 +1,14 @@
--- ============================================
--- LibraFlow - Database Peminjaman Buku
--- Jalankan file ini di phpMyAdmin
--- ============================================
-
-CREATE DATABASE IF NOT EXISTS libraflow;
+CREATE DATABASE libraflow;
 USE libraflow;
 
--- Tabel Kategori
+
 CREATE TABLE kategori (
     kategori_id INT AUTO_INCREMENT PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
     deskripsi TEXT
 );
 
--- Tabel Buku
+
 CREATE TABLE buku (
     buku_id INT AUTO_INCREMENT PRIMARY KEY,
     kategori_id INT,
@@ -26,7 +21,7 @@ CREATE TABLE buku (
     FOREIGN KEY (kategori_id) REFERENCES kategori(kategori_id)
 );
 
--- Tabel Users
+
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -37,7 +32,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabel Peminjaman
+
 CREATE TABLE peminjaman (
     peminjaman_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
@@ -48,7 +43,7 @@ CREATE TABLE peminjaman (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- Tabel Detail Peminjaman (pivot)
+
 CREATE TABLE detail_peminjaman (
     detail_peminjaman_id INT AUTO_INCREMENT PRIMARY KEY,
     peminjaman_id INT,
@@ -60,7 +55,7 @@ CREATE TABLE detail_peminjaman (
     FOREIGN KEY (buku_id) REFERENCES buku(buku_id)
 );
 
--- Tabel Denda
+
 CREATE TABLE denda (
     denda_id INT AUTO_INCREMENT PRIMARY KEY,
     peminjaman_id INT,
@@ -72,15 +67,12 @@ CREATE TABLE denda (
     FOREIGN KEY (peminjaman_id) REFERENCES peminjaman(peminjaman_id)
 );
 
--- ============================================
--- DATA AWAL (SAMPLE)
--- ============================================
 
--- Admin default (password: admin123)
+
 INSERT INTO users (name, email, password, phone, role) VALUES
 ('Admin', 'admin@libraflow.com', '$2y$10$SOt1GQ8A545OLW29mfq3k.4on7tK9kyCNRDn10RYnEunak3f3PSHu', '081234567890', 'admin');
 
--- Kategori
+
 INSERT INTO kategori (nama, deskripsi) VALUES
 ('Fiksi', 'Novel dan cerita fiksi'),
 ('Sains', 'Buku ilmu pengetahuan'),
@@ -89,7 +81,7 @@ INSERT INTO kategori (nama, deskripsi) VALUES
 ('Psikologi', 'Buku tentang psikologi dan pengembangan diri'),
 ('Agama', 'Buku keagamaan');
 
--- Buku
+
 INSERT INTO buku (kategori_id, judul, penulis, penerbit, tahun_terbit, stok) VALUES
 (1, 'Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 5),
 (1, 'Bumi Manusia', 'Pramoedya Ananta Toer', 'Hasta Mitra', 1980, 3),

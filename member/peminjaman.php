@@ -4,7 +4,7 @@ cek_member();
 
 $user_id = $_SESSION['user_id'];
 
-// Ambil semua peminjaman user ini
+
 $query = "SELECT * FROM peminjaman WHERE user_id = $user_id ORDER BY tgl_pinjam DESC";
 $result = mysqli_query($conn, $query);
 ?>

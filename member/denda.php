@@ -4,7 +4,7 @@ cek_member();
 
 $user_id = $_SESSION['user_id'];
 
-// Ambil semua denda milik user ini
+
 $query = "SELECT d.*, p.tgl_pinjam 
           FROM denda d 
           JOIN peminjaman p ON d.peminjaman_id = p.peminjaman_id 
