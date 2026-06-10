@@ -308,6 +308,16 @@ table tr:hover { background: #f9fafb; }
 }
 
 @media (max-width: 768px) {
+    .mobile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #1f2937;
+        color: #fff;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+    }
     .nav-menu { display: none; }
     .hero h1 { font-size: 26px; }
     .kategori-grid { grid-template-columns: repeat(2, 1fr); }
