@@ -199,3 +199,40 @@ const db = {
         return user;
     }
 };
+
+// Auto-inject Mobile responsive toggles and overlay for Dashboard sidebar navigation
+document.addEventListener("DOMContentLoaded", function() {
+    const dashboardEl = document.querySelector('.dashboard');
+    if (dashboardEl) {
+        const mainContent = document.querySelector('.main-content');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (mainContent && sidebar) {
+            // Create mobile header bar
+            const mobileHeader = document.createElement('div');
+            mobileHeader.className = 'mobile-header';
+            mobileHeader.innerHTML = `
+                <button class="menu-toggle" id="lf-mobile-menu-btn" style="background: #16a34a; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 13px;">☰ Menu</button>
+                <span class="mobile-logo" style="font-weight: bold; font-size: 15px; color: #fff;">📚 LibraFlow</span>
+            `;
+            
+            // Prepend mobile header to main-content
+            mainContent.insertBefore(mobileHeader, mainContent.firstChild);
+            
+            // Create overlay element
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            overlay.id = 'lf-sidebar-overlay';
+            dashboardEl.appendChild(overlay);
+            
+            // Toggle functions
+            const toggleMenu = () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            };
+            
+            document.getElementById('lf-mobile-menu-btn').addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        }
+    }
+});
