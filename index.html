@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraFlow - Sistem Peminjaman Buku</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="assets/js/mock-db.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">📚 LibraFlow</div>
+        <ul class="nav-menu">
+            <li><a href="#beranda">Beranda</a></li>
+            <li><a href="#kategori">Kategori</a></li>
+            <li><a href="#buku">Koleksi</a></li>
+            <li><a href="#cara-kerja">Cara Kerja</a></li>
+        </ul>
+        <div class="nav-buttons" id="nav-auth-buttons">
+            <a href="login.html"    class="btn btn-outline">Masuk</a>
+            <a href="register.html" class="btn btn-primary">Daftar</a>
+        </div>
+    </div>
+</nav>
+
+<section class="hero" id="beranda">
+    <div class="container">
+        <div class="hero-text">
+            <h1>Sistem Peminjaman Buku<br><span class="green">Digital & Mudah</span></h1>
+            <p>Pinjam buku favoritmu kapan saja. Pantau status peminjaman, tanggal kembali, dan riwayat buku dengan mudah.</p>
+            <div class="hero-buttons">
+                <a href="register.html" class="btn btn-primary btn-besar">Daftar Sekarang</a>
+                <a href="#buku"        class="btn btn-outline btn-besar">Lihat Koleksi</a>
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat-box">
+                <div class="stat-angka" id="stat-total-buku">0</div>
+                <div class="stat-label">Total Buku</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-angka" id="stat-total-anggota">0</div>
+                <div class="stat-label">Anggota</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-angka" id="stat-total-dipinjam">0</div>
+                <div class="stat-label">Sedang Dipinjam</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section bg-abu" id="kategori">
+    <div class="container">
+        <h2 class="section-title">Kategori Buku</h2>
+        <p class="section-sub">Temukan buku sesuai minat dan kebutuhanmu</p>
+
+        <div class="kategori-grid" id="kategori-grid">
+            <!-- Loaded via JS -->
+        </div>
+    </div>
+</section>
+
+<section class="section" id="buku">
+    <div class="container">
+        <h2 class="section-title">Buku Populer</h2>
+        <p class="section-sub">Judul yang paling banyak dipinjam</p>
+
+        <div class="buku-grid" id="buku-grid">
+            <!-- Loaded via JS -->
+        </div>
+    </div>
+</section>
+
+<section class="section bg-abu" id="cara-kerja">
+    <div class="container">
+        <h2 class="section-title">Cara Kerja</h2>
+        <p class="section-sub">3 langkah mudah untuk meminjam buku</p>
+
+        <div class="langkah-grid">
+            <div class="langkah">
+                <div class="langkah-nomor">1</div>
+                <div class="langkah-icon">📝</div>
+                <h3>Daftar Akun</h3>
+                <p>Buat akun gratis dengan email dan nomor telepon kamu.</p>
+            </div>
+            <div class="langkah-panah">→</div>
+            <div class="langkah">
+                <div class="langkah-nomor">2</div>
+                <div class="langkah-icon">🔍</div>
+                <h3>Cari Buku</h3>
+                <p>Cari buku berdasarkan judul, pengarang, atau kategori.</p>
+            </div>
+            <div class="langkah-panah">→</div>
+            <div class="langkah">
+                <div class="langkah-nomor">3</div>
+                <div class="langkah-icon">✅</div>
+                <h3>Pinjam & Nikmati</h3>
+                <p>Konfirmasi peminjaman dan ambil buku di perpustakaan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Siap Mulai Membaca?</h2>
+        <p>Bergabung sekarang dan nikmati kemudahan meminjam buku secara digital.</p>
+        <a href="register.html" class="btn btn-putih btn-besar">Daftar Gratis</a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-isi">
+            <div class="footer-brand">
+                <div class="logo">📚 LibraFlow</div>
+                <p>Sistem Peminjaman Buku Digital untuk perpustakaan modern.</p>
+            </div>
+            <div class="footer-link">
+                <h4>Menu</h4>
+                <a href="#beranda">Beranda</a>
+                <a href="#kategori">Kategori</a>
+                <a href="#buku">Koleksi</a>
+                <a href="login.html">Masuk</a>
+            </div>
+            <div class="footer-link">
+                <h4>Akun</h4>
+                <a href="register.html">Daftar</a>
+                <a href="login.html">Masuk</a>
+                <a href="member/dashboard.html">Dashboard</a>
+            </div>
+        </div>
+        <div class="footer-bawah">
+            <p>&copy; 2026 LibraFlow. Dibuat untuk tugas Web Programming.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Load Statistics
+        const books = db.getBooks();
+        const categories = db.getCategories();
+        const users = db.getUsers();
+        const loans = db.getLoans();
+
+        document.getElementById("stat-total-buku").textContent = books.length;
+        document.getElementById("stat-total-anggota").textContent = users.filter(u => u.role === 'member').length;
+        document.getElementById("stat-total-dipinjam").textContent = loans.filter(l => l.status === 'aktif').length;
+
+        // Render Categories
+        const catGrid = document.getElementById("kategori-grid");
+        const icons = {
+            "Fiksi": "📖",
+            "Sains": "🔬",
+            "Teknologi": "💻",
+            "Sejarah": "🏛️",
+            "Psikologi": "🧠",
+            "Agama": "🌙"
+        };
+        categories.forEach(c => {
+            const card = document.createElement("div");
+            card.className = "kategori-card";
+            const icon = icons[c.nama] || "📚";
+            card.innerHTML = `
+                <div class="kategori-icon">${icon}</div>
+                <div class="kategori-nama">${c.nama}</div>
+            `;
+            catGrid.appendChild(card);
+        });
+
+        // Render Books
+        const bukuGrid = document.getElementById("buku-grid");
+        // Only show first 4 popular books
+        books.slice(0, 4).forEach(b => {
+            const cat = categories.find(c => c.id == b.kategori_id);
+            const catName = cat ? cat.nama : "Lainnya";
+
+            const card = document.createElement("div");
+            card.className = "buku-card";
+            card.innerHTML = `
+                <div class="buku-cover">📗</div>
+                <div class="buku-info">
+                    <span class="buku-kategori">${catName}</span>
+                    <h3 class="buku-judul">${b.judul}</h3>
+                    <p class="buku-pengarang">✍️ ${b.penulis}</p>
+                    <div class="buku-footer">
+                        ${b.stok > 0 ? 
+                            `<span class="stok tersedia">Stok: ${b.stok}</span>
+                             <a href="login.html" class="btn btn-primary btn-kecil">Pinjam</a>` : 
+                            `<span class="stok habis">Stok Habis</span>
+                             <button class="btn btn-outline btn-kecil" disabled>Antri</button>`
+                        }
+                    </div>
+                </div>
+            `;
+            bukuGrid.appendChild(card);
+        });
+
+        // Update nav bar if user is logged in
+        const currentUser = db.getCurrentUser();
+        if (currentUser) {
+            const navAuth = document.getElementById("nav-auth-buttons");
+            const dashboardLink = currentUser.role === 'admin' ? 'admin/dashboard.html' : 'member/dashboard.html';
+            navAuth.innerHTML = `
+                <a href="${dashboardLink}" class="btn btn-outline">Dashboard</a>
+                <a href="#" id="btn-logout" class="btn btn-primary">Logout</a>
+            `;
+            document.getElementById("btn-logout").addEventListener("click", function(e) {
+                e.preventDefault();
+                db.logout();
+                window.location.reload();
+            });
+        }
+    });
+</script>
+</body>
+</html>

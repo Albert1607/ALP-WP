@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Tambah Peminjaman - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html' class='active'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Tambah Peminjaman</h2>
+        </div>
+
+        <div class='card'>
+            <form id="tambah-peminjaman-form">
+                <div class='form-group'>
+                    <label>Anggota</label>
+                    <select id='user_id' required>
+                        <option value=''>-- Pilih Anggota --</option>
+                        <!-- Dynamic -->
+                    </select>
+                </div>
+
+                <div class='form-group'>
+                    <label>Tanggal Pinjam</label>
+                    <input type='text' id='tgl_pinjam' required placeholder='dd-mm-yyyy'>
+                </div>
+
+                <div class='form-group'>
+                    <label>Tanggal Kembali Rencana</label>
+                    <input type='text' id='tgl_kembali_rencana' required placeholder='dd-mm-yyyy'>
+                </div>
+
+                <div class='form-group'>
+                    <label>Pilih Buku & Tentukan Kondisi Awal</label>
+                    <div id="books-checkboxes-container">
+                        <!-- Dynamic -->
+                    </div>
+                </div>
+
+                <button type='submit' class='btn-primary' style='border: none; cursor: pointer; padding: 10px 20px; border-radius: 5px;'>Simpan</button>
+                <a href='peminjaman.html' class='btn-danger' style='text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-left: 8px;'>Kembali</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Initialize flatpickr
+        flatpickr("#tgl_pinjam", {
+            dateFormat: "d-m-Y",
+            defaultDate: "today"
+        });
+        flatpickr("#tgl_kembali_rencana", {
+            dateFormat: "d-m-Y",
+            defaultDate: new Date().fp_incr(7) // 7 days in future
+        });
+
+        // Load Members
+        const users = db.getUsers();
+        const selectMember = document.getElementById('user_id');
+        users.filter(u => u.role === 'member').forEach(member => {
+            const opt = document.createElement('option');
+            opt.value = member.id;
+            opt.textContent = member.name;
+            selectMember.appendChild(opt);
+        });
+
+        // Load Books (stok > 0)
+        const books = db.getBooks();
+        const booksContainer = document.getElementById('books-checkboxes-container');
+        const availableBooks = books.filter(b => b.stok > 0);
+
+        if (availableBooks.length === 0) {
+            booksContainer.innerHTML = '<p style="color: red; font-size: 13px;">Semua stok buku habis.</p>';
+        } else {
+            availableBooks.forEach(b => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '12px';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '12px';
+                div.innerHTML = `
+                    <input type='checkbox' name='buku_id_checkbox' value='${b.id}' id="buku_${b.id}">
+                    <label for="buku_${b.id}" style="font-weight: normal; margin-bottom: 0; display: inline; cursor: pointer; font-size: 13px; color: #333;">
+                        ${b.judul} (Stok: ${b.stok})
+                    </label>
+                    <select id="kondisi_awal_${b.id}" style="width: auto; padding: 4px 8px; font-size: 12px; margin-left: auto;">
+                        <option value="Baik">Baik</option>
+                        <option value="Rusak">Rusak</option>
+                        <option value="Hilang">Hilang</option>
+                    </select>
+                `;
+                booksContainer.appendChild(div);
+            });
+        }
+
+        // Form Submit
+        document.getElementById('tambah-peminjaman-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const userId = parseInt(document.getElementById('user_id').value);
+            
+            // Format dates back to YYYY-MM-DD
+            const tglPinjamRaw = document.getElementById('tgl_pinjam').value;
+            const tglKembaliRaw = document.getElementById('tgl_kembali_rencana').value;
+
+            const formatToISO = (dateStr) => {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+                return dateStr;
+            };
+
+            const tglPinjam = formatToISO(tglPinjamRaw);
+            const tglKembaliRencana = formatToISO(tglKembaliRaw);
+
+            // Get selected books
+            const checkboxes = document.querySelectorAll("input[name='buku_id_checkbox']:checked");
+            if (checkboxes.length === 0) {
+                alert('Pilih minimal satu buku!');
+                return;
+            }
+
+            checkboxes.forEach(chk => {
+                const bookId = parseInt(chk.value);
+                const kondisi = document.getElementById(`kondisi_awal_${bookId}`).value;
+
+                db.addLoan({
+                    user_id: userId,
+                    tgl_pinjam: tglPinjam,
+                    tgl_kembali_rencana: tglKembaliRencana,
+                    buku_id: bookId,
+                    kondisi_awal: kondisi,
+                    status: 'aktif'
+                });
+            });
+
+            window.location.href = 'peminjaman.html?pesan=Peminjaman berhasil ditambahkan';
+        });
+    });
+</script>
+</body>
+</html>

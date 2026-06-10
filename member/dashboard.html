@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LibraFlow</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/mock-db.js"></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('member');
+</script>
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="logo">📚 LibraFlow</div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="active">📊 Dashboard</a>
+            <a href="buku.html">📚 Katalog Buku</a>
+            <a href="peminjaman.html">📋 Peminjaman Saya</a>
+            <a href="denda.html">💰 Denda Saya</a>
+            <div class="sidebar-divider"></div>
+            <a href="#" id="btn-logout">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Dashboard</h1>
+            <div class="user-info">Halo, <strong id="user-display-name">-</strong></div>
+        </div>
+
+        <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="stat-card">
+                <div class="stat-icon">📖</div>
+                <div class="stat-angka" id="aktif-loans">0</div>
+                <div class="stat-label">Peminjaman Aktif</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-angka" id="total-loans">0</div>
+                <div class="stat-label">Total Dipinjam</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-angka" id="total-fines">Rp 0</div>
+                <div class="stat-label">Denda Belum Bayar</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Peminjaman Aktif</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Tgl Kembali Rencana</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="loans-table-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!currentUser) return;
+
+        // Display User Name
+        document.getElementById('user-display-name').textContent = currentUser.name;
+
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Load statistics
+        const loans = db.getLoans().filter(l => l.user_id == currentUser.id);
+        const fines = db.getFines().filter(f => {
+            const loan = db.getLoan(f.peminjaman_id);
+            return loan && loan.user_id == currentUser.id && f.status === 'belum_bayar';
+        });
+
+        const activeLoans = loans.filter(l => l.status === 'aktif');
+        const totalFinesSum = fines.reduce((sum, f) => sum + f.total, 0);
+
+        document.getElementById('aktif-loans').textContent = activeLoans.length;
+        document.getElementById('total-loans').textContent = loans.length;
+        document.getElementById('total-fines').textContent = `Rp ${totalFinesSum.toLocaleString('id-ID')}`;
+
+        // Render Active Loans Table
+        const tbody = document.getElementById('loans-table-body');
+        tbody.innerHTML = '';
+
+        if (activeLoans.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #999;">Tidak ada peminjaman aktif</td></tr>`;
+        } else {
+            activeLoans.forEach((loan, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${loan.tgl_pinjam}</td>
+                    <td>${loan.tgl_kembali_rencana}</td>
+                    <td><span class="badge badge-blue">Aktif</span></td>
+                    <td>
+                        <a href="detail_peminjaman.html?id=${loan.id}" class="btn btn-primary btn-kecil" style="text-decoration: none;">Detail</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Buku - LibraFlow</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/mock-db.js"></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('member');
+</script>
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="logo">📚 LibraFlow</div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="buku.html" class="active">📚 Katalog Buku</a>
+            <a href="peminjaman.html">📋 Peminjaman Saya</a>
+            <a href="denda.html">💰 Denda Saya</a>
+            <div class="sidebar-divider"></div>
+            <a href="#" id="btn-logout">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Katalog Buku</h1>
+            <div class="user-info">Halo, <strong id="user-display-name">-</strong></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Daftar Buku</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Judul</th>
+                        <th>Penulis</th>
+                        <th>Penerbit</th>
+                        <th>Tahun</th>
+                        <th>Kategori</th>
+                        <th>Stok</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="books-table-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!currentUser) return;
+
+        // Display User Name
+        document.getElementById('user-display-name').textContent = currentUser.name;
+
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Load Books
+        const books = db.getBooks();
+        const categories = db.getCategories();
+        const tbody = document.getElementById('books-table-body');
+        tbody.innerHTML = '';
+
+        // Sort books alphabetically by title
+        const sortedBooks = [...books].sort((a, b) => a.judul.localeCompare(b.judul));
+
+        if (sortedBooks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #999;">Belum ada buku</td></tr>`;
+        } else {
+            sortedBooks.forEach((book, idx) => {
+                const cat = categories.find(c => c.id == book.kategori_id);
+                const catName = cat ? cat.nama : "Lainnya";
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${book.judul}</td>
+                    <td>${book.penulis}</td>
+                    <td>${book.penerbit}</td>
+                    <td>${book.tahun_terbit}</td>
+                    <td>${catName}</td>
+                    <td>
+                        ${book.stok > 0 ? 
+                            `<span class="badge badge-green">Tersedia (${book.stok})</span>` : 
+                            `<span class="badge badge-red">Habis</span>`
+                        }
+                    </td>
+                    <td>
+                        ${book.stok > 0 ? 
+                            `<a href="tambah_peminjaman.html?buku_id=${book.id}" class="btn btn-primary btn-kecil" style="text-decoration: none;">Pinjam</a>` : 
+                            `<button class="btn btn-kecil" disabled style="background: #e5e7eb; color: #9ca3af; border: none; cursor: not-allowed;">Pinjam</button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    });
+</script>
+</body>
+</html>

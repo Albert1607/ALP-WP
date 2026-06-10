@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Edit Kategori - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html' class='active'>📂 Kategori</a>
+            <a href='peminjaman.html'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Edit Kategori</h2>
+        </div>
+
+        <div class='card'>
+            <form id="edit-kategori-form">
+                <input type='hidden' id='kategori_id'>
+                <div class='form-group'>
+                    <label>Nama Kategori</label>
+                    <input type='text' id='nama' required>
+                </div>
+                <div class='form-group'>
+                    <label>Deskripsi</label>
+                    <textarea id='deskripsi' rows='4'></textarea>
+                </div>
+                <button type='submit' class='btn-primary' style='border: none; cursor: pointer; padding: 10px 20px; border-radius: 5px;'>Simpan</button>
+                <a href='kategori.html' class='btn-danger' style='text-decoration: none; padding: 10px 20px; border-radius: 5px; margin-left: 8px;'>Kembali</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Load Category details
+        const urlParams = new URLSearchParams(window.location.search);
+        const catId = parseInt(urlParams.get('id'));
+        const cat = db.getCategory(catId);
+
+        if (!cat) {
+            window.location.href = 'kategori.html';
+            return;
+        }
+
+        document.getElementById('kategori_id').value = cat.id;
+        document.getElementById('nama').value = cat.nama;
+        document.getElementById('deskripsi').value = cat.deskripsi || '';
+
+        // Form Submit
+        document.getElementById('edit-kategori-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const id = parseInt(document.getElementById('kategori_id').value);
+            const updatedCat = {
+                nama: document.getElementById('nama').value,
+                deskripsi: document.getElementById('deskripsi').value
+            };
+
+            db.updateCategory(id, updatedCat);
+            window.location.href = 'kategori.html?pesan=Kategori berhasil diupdate';
+        });
+    });
+</script>
+</body>
+</html>

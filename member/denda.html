@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denda Saya - LibraFlow</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/mock-db.js"></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('member');
+</script>
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="logo">📚 LibraFlow</div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="buku.html">📚 Katalog Buku</a>
+            <a href="peminjaman.html">📋 Peminjaman Saya</a>
+            <a href="denda.html" class="active">💰 Denda Saya</a>
+            <div class="sidebar-divider"></div>
+            <a href="#" id="btn-logout">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Denda Saya</h1>
+            <div class="user-info">Halo, <strong id="user-display-name">-</strong></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Riwayat Denda</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Jumlah Hari Telat</th>
+                        <th>Denda/Hari</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Tgl Bayar</th>
+                    </tr>
+                </thead>
+                <tbody id="fines-table-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!currentUser) return;
+
+        // Display User Name
+        document.getElementById('user-display-name').textContent = currentUser.name;
+
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Load personal fines
+        const fines = db.getFines().filter(f => {
+            const loan = db.getLoan(f.peminjaman_id);
+            return loan && loan.user_id == currentUser.id;
+        });
+
+        const tbody = document.getElementById('fines-table-body');
+        tbody.innerHTML = '';
+
+        // Sort fines (latest loans first)
+        const sortedFines = [...fines].sort((a, b) => b.id - a.id);
+
+        if (sortedFines.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #999;">Tidak ada denda</td></tr>`;
+        } else {
+            sortedFines.forEach((fine, idx) => {
+                const loan = db.getLoan(fine.peminjaman_id);
+                const tglPinjam = loan ? loan.tgl_pinjam : "-";
+
+                const tr = document.createElement('tr');
+                
+                let badgeClass = 'badge-red';
+                let statusLabel = 'Belum Bayar';
+                if (fine.status === 'lunas') {
+                    badgeClass = 'badge-green';
+                    statusLabel = 'Lunas';
+                }
+
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${tglPinjam}</td>
+                    <td>${fine.jumlah_hari} hari</td>
+                    <td>Rp ${fine.denda_harian.toLocaleString('id-ID')}</td>
+                    <td>Rp ${fine.total.toLocaleString('id-ID')}</td>
+                    <td><span class="badge ${badgeClass}">${statusLabel}</span></td>
+                    <td>${fine.tgl_bayar || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    });
+</script>
+</body>
+</html>

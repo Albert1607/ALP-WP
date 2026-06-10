@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinjam Buku - LibraFlow</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="../assets/js/mock-db.js"></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('member');
+</script>
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="logo">📚 LibraFlow</div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="buku.html">📚 Katalog Buku</a>
+            <a href="peminjaman.html" class="active">📋 Peminjaman Saya</a>
+            <a href="denda.html">💰 Denda Saya</a>
+            <div class="sidebar-divider"></div>
+            <a href="#" id="btn-logout">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Pinjam Buku</h1>
+            <div class="user-info">Halo, <strong id="user-display-name">-</strong></div>
+        </div>
+
+        <div id="error-alert" class="alert alert-error" style="display: none; margin-bottom: 20px;"></div>
+
+        <div class="card">
+            <form id="loan-form">
+                <div class="form-group">
+                    <label>Nama Peminjam</label>
+                    <input type="text" id="member-name-display" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Pinjam</label>
+                    <input type="text" id="tgl_pinjam" required placeholder="dd-mm-yyyy">
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Rencana Kembali (Batas Pengembalian)</label>
+                    <input type="text" id="tgl_kembali_rencana" required placeholder="dd-mm-yyyy">
+                </div>
+
+                <div class="form-group">
+                    <label style="margin-bottom: 12px; display: block;">Pilih Buku yang Ingin Dipinjam</label>
+                    <div id="books-checkbox-list" style="max-height: 250px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; background: #fff;">
+                        <!-- Dynamic -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <button type="submit" id="btn-submit-loan" class="btn btn-primary">Konfirmasi Pinjam</button>
+                    <a href="peminjaman.html" class="btn btn-outline" style="margin-left: 8px; text-decoration: none; padding: 10px 15px; border-radius: 5px;">Kembali</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!currentUser) return;
+
+        // Display User details
+        document.getElementById('user-display-name').textContent = currentUser.name;
+        document.getElementById('member-name-display').value = currentUser.name;
+
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Initialize Datepickers
+        flatpickr("#tgl_pinjam", {
+            dateFormat: "d-m-Y",
+            defaultDate: "today"
+        });
+        flatpickr("#tgl_kembali_rencana", {
+            dateFormat: "d-m-Y",
+            defaultDate: new Date().fp_incr(7) // 7 days in future
+        });
+
+        // Get preselected book id
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectedBookId = parseInt(urlParams.get('buku_id')) || 0;
+
+        // Load Books (stok > 0)
+        const books = db.getBooks();
+        const availableBooks = books.filter(b => b.stok > 0);
+        const listContainer = document.getElementById('books-checkbox-list');
+        const btnSubmit = document.getElementById('btn-submit-loan');
+
+        if (availableBooks.length === 0) {
+            listContainer.innerHTML = '<p style="color: #ef4444; font-size: 13px; font-weight: bold;">Maaf, stok seluruh buku saat ini sedang kosong.</p>';
+            btnSubmit.disabled = true;
+        } else {
+            availableBooks.forEach(b => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '10px';
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.gap = '8px';
+                
+                const checked = (b.id === preselectedBookId) ? 'checked' : '';
+
+                div.innerHTML = `
+                    <input type="checkbox" name="buku_id_checkbox" value="${b.id}" id="buku_${b.id}" ${checked}>
+                    <label for="buku_${b.id}" style="font-weight: normal; cursor: pointer; display: inline; font-size: 13px; color: #333;">
+                        <strong>${b.judul}</strong> oleh ${b.penulis} 
+                        <span style="color: #16a34a;">(Stok: ${b.stok})</span>
+                    </label>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // Form Submit
+        document.getElementById('loan-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const errorAlert = document.getElementById("error-alert");
+            errorAlert.style.display = "none";
+
+            const checkboxes = document.querySelectorAll("input[name='buku_id_checkbox']:checked");
+            if (checkboxes.length === 0) {
+                errorAlert.textContent = "Pilih minimal 1 buku yang ingin dipinjam.";
+                errorAlert.style.display = "block";
+                return;
+            }
+
+            // Convert Date from DD-MM-YYYY to YYYY-MM-DD
+            const tglPinjamRaw = document.getElementById('tgl_pinjam').value;
+            const tglKembaliRaw = document.getElementById('tgl_kembali_rencana').value;
+
+            const formatToISO = (dateStr) => {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+                return dateStr;
+            };
+
+            const tglPinjam = formatToISO(tglPinjamRaw);
+            const tglKembaliRencana = formatToISO(tglKembaliRaw);
+
+            checkboxes.forEach(chk => {
+                const bookId = parseInt(chk.value);
+                db.addLoan({
+                    user_id: currentUser.id,
+                    tgl_pinjam: tglPinjam,
+                    tgl_kembali_rencana: tglKembaliRencana,
+                    buku_id: bookId,
+                    status: 'aktif'
+                });
+            });
+
+            window.location.href = 'peminjaman.html?pesan=Peminjaman berhasil dilakukan';
+        });
+    });
+</script>
+</body>
+</html>

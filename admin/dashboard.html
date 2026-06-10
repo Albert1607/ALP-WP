@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Dashboard - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html' class='active'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='stat-cards'>
+            <div class='stat-card'>
+                <h3>Total Buku</h3>
+                <p class='stat-number' id='total-buku'>0</p>
+            </div>
+            <div class='stat-card'>
+                <h3>Total Anggota</h3>
+                <p class='stat-number' id='total-anggota'>0</p>
+            </div>
+            <div class='stat-card'>
+                <h3>Peminjaman Aktif</h3>
+                <p class='stat-number' id='peminjaman-aktif'>0</p>
+            </div>
+            <div class='stat-card'>
+                <h3>Denda Belum Bayar</h3>
+                <p class='stat-number' id='denda-belum'>0</p>
+            </div>
+        </div>
+
+        <div class='card'>
+            <div class='card-header'>Peminjaman Terbaru</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Tgl Kembali</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id='loans-table-body'>
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Statistics
+        const books = db.getBooks();
+        const users = db.getUsers();
+        const loans = db.getLoans();
+        const fines = db.getFines();
+
+        document.getElementById('total-buku').textContent = books.length;
+        document.getElementById('total-anggota').textContent = users.filter(u => u.role === 'member').length;
+        document.getElementById('peminjaman-aktif').textContent = loans.filter(l => l.status === 'aktif').length;
+        document.getElementById('denda-belum').textContent = fines.filter(f => f.status === 'belum_bayar').length;
+
+        // Render Recent Loans
+        const tbody = document.getElementById('loans-table-body');
+        // Sort by tgl_pinjam descending, take top 5
+        const sortedLoans = [...loans].sort((a, b) => new Date(b.tgl_pinjam) - new Date(a.tgl_pinjam)).slice(0, 5);
+
+        if (sortedLoans.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">Tidak ada data peminjaman terbaru.</td></tr>`;
+        } else {
+            sortedLoans.forEach((loan, idx) => {
+                const user = db.getUser(loan.user_id);
+                const userName = user ? user.name : "Unknown";
+
+                const tr = document.createElement('tr');
+                let badgeClass = 'badge-blue';
+                let statusLabel = 'Aktif';
+                if (loan.status === 'dikembalikan') {
+                    badgeClass = 'badge-green';
+                    statusLabel = 'Dikembalikan';
+                } else if (loan.status === 'terlambat') {
+                    badgeClass = 'badge-red';
+                    statusLabel = 'Terlambat';
+                }
+
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${userName}</td>
+                    <td>${loan.tgl_pinjam}</td>
+                    <td>${loan.tgl_kembali_rencana}</td>
+                    <td><span class='${badgeClass}'>${statusLabel}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    });
+</script>
+</body>
+</html>

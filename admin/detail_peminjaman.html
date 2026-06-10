@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Detail Peminjaman - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html' class='active'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Detail Peminjaman</h2>
+        </div>
+
+        <div class='card'>
+            <div class='form-group'>
+                <label>Nama Peminjam</label>
+                <p id="borrower-name">-</p>
+            </div>
+            <div class='form-group'>
+                <label>Tanggal Pinjam</label>
+                <p id="loan-date">-</p>
+            </div>
+            <div class='form-group'>
+                <label>Tanggal Kembali Rencana</label>
+                <p id="return-plan-date">-</p>
+            </div>
+            <div class='form-group'>
+                <label>Tanggal Kembali Aktual</label>
+                <p id="return-actual-date">-</p>
+            </div>
+            <div class='form-group'>
+                <label>Status</label>
+                <p id="loan-status">-</p>
+            </div>
+        </div>
+
+        <div class='card'>
+            <div class='card-header'>
+                <h3>Daftar Buku Dipinjam</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Judul Buku</th>
+                        <th>Kondisi Awal</th>
+                        <th>Kondisi Kembali</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="books-list-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+
+        <a href='peminjaman.html' class='btn-primary' style="text-decoration: none; padding: 10px 15px; border-radius: 5px; display: inline-block; margin-top: 10px;">Kembali</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Load Loan details
+        const urlParams = new URLSearchParams(window.location.search);
+        const loanId = parseInt(urlParams.get('id'));
+        const loan = db.getLoan(loanId);
+
+        if (!loan) {
+            window.location.href = 'peminjaman.html';
+            return;
+        }
+
+        const borrower = db.getUser(loan.user_id);
+        const book = db.getBook(loan.buku_id);
+
+        document.getElementById('borrower-name').textContent = borrower ? borrower.name : "Unknown";
+        document.getElementById('loan-date').textContent = loan.tgl_pinjam;
+        document.getElementById('return-plan-date').textContent = loan.tgl_kembali_rencana;
+        document.getElementById('return-actual-date').textContent = loan.tgl_kembali_aktual || '-';
+
+        let badgeClass = 'badge-blue';
+        let statusLabel = 'Aktif';
+        if (loan.status === 'dikembalikan') {
+            badgeClass = 'badge-green';
+            statusLabel = 'Dikembalikan';
+        } else if (loan.status === 'terlambat') {
+            badgeClass = 'badge-red';
+            statusLabel = 'Terlambat';
+        }
+        document.getElementById('loan-status').innerHTML = `<span class="${badgeClass}">${statusLabel}</span>`;
+
+        // Render book
+        const tbody = document.getElementById('books-list-body');
+        const bookTitle = book ? book.judul : "Unknown Book";
+        const isReturned = loan.status !== 'aktif';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>1</td>
+            <td>${bookTitle}</td>
+            <td>Baik</td>
+            <td>${isReturned ? (loan.status === 'terlambat' ? 'Baik/Terlambat' : 'Baik') : '-'}</td>
+            <td>
+                ${isReturned ? 
+                    `<span class="badge-green">Dikembalikan</span>` : 
+                    `<span class="badge-yellow">Dipinjam</span>`
+                }
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+</script>
+</body>
+</html>

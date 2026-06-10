@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Data Buku - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html' class='active'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Data Buku</h2>
+            <a href='tambah_buku.html' class='btn-primary' style='text-decoration: none; padding: 10px 15px; border-radius: 5px;'>Tambah Buku</a>
+        </div>
+
+        <div id="success-alert" class="alert alert-success" style="display: none; margin-bottom: 20px;"></div>
+
+        <div class='card'>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Judul</th>
+                        <th>Penulis</th>
+                        <th>Penerbit</th>
+                        <th>Tahun</th>
+                        <th>Stok</th>
+                        <th>Kategori</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id='buku-table-body'>
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Show delete success message if redirected with param
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pesan')) {
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = urlParams.get('pesan');
+            successAlert.style.display = "block";
+            setTimeout(() => { successAlert.style.display = "none"; }, 4000);
+        }
+
+        renderBooksTable();
+    });
+
+    function renderBooksTable() {
+        const books = db.getBooks();
+        const categories = db.getCategories();
+        const tbody = document.getElementById('buku-table-body');
+        tbody.innerHTML = '';
+
+        // Order by book id DESC
+        const sortedBooks = [...books].sort((a, b) => b.id - a.id);
+
+        if (sortedBooks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Tidak ada data buku.</td></tr>`;
+            return;
+        }
+
+        sortedBooks.forEach((book, idx) => {
+            const cat = categories.find(c => c.id == book.kategori_id);
+            const catName = cat ? cat.nama : "Unknown";
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${idx + 1}</td>
+                <td>${book.judul}</td>
+                <td>${book.penulis}</td>
+                <td>${book.penerbit}</td>
+                <td>${book.tahun_terbit}</td>
+                <td>${book.stok}</td>
+                <td>${catName}</td>
+                <td>
+                    <div class='aksi'>
+                        <a href='edit_buku.html?id=${book.id}' class='btn-primary btn-kecil' style='text-decoration: none;'>Edit</a>
+                        <button onclick='deleteBook(${book.id})' class='btn-danger btn-kecil' style='border: none; cursor: pointer;'>Hapus</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteBook(id) {
+        if (confirm('Yakin hapus buku ini?')) {
+            db.deleteBook(id);
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = "Buku berhasil dihapus!";
+            successAlert.style.display = "block";
+            renderBooksTable();
+            setTimeout(() => { successAlert.style.display = "none"; }, 3000);
+        }
+    }
+</script>
+</body>
+</html>

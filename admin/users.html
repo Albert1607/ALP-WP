@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Data Users - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html'>📋 Peminjaman</a>
+            <a href='users.html' class='active'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Data Users</h2>
+        </div>
+
+        <div id="success-alert" class="alert alert-success" style="display: none; margin-bottom: 20px;"></div>
+
+        <div class='card'>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Tgl Daftar</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id='users-table-body'>
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        renderUsersTable();
+    });
+
+    function renderUsersTable() {
+        const users = db.getUsers();
+        const tbody = document.getElementById('users-table-body');
+        tbody.innerHTML = '';
+
+        // Order by user id DESC
+        const sortedUsers = [...users].sort((a, b) => b.id - a.id);
+
+        sortedUsers.forEach((user, idx) => {
+            const tr = document.createElement('tr');
+            
+            let badgeClass = 'badge-green';
+            let roleLabel = 'Member';
+            if (user.role === 'admin') {
+                badgeClass = 'badge-blue';
+                roleLabel = 'Admin';
+            }
+
+            tr.innerHTML = `
+                <td>${idx + 1}</td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${user.phone || '-'}</td>
+                <td><span class='${badgeClass}'>${roleLabel}</span></td>
+                <td>${user.created_at || '-'}</td>
+                <td>
+                    ${user.role !== 'admin' ? 
+                        `<button onclick='deleteUser(${user.id})' class='btn-danger btn-kecil' style='border: none; cursor: pointer;'>Hapus</button>` : 
+                        '-'
+                    }
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteUser(id) {
+        if (confirm('Yakin hapus user ini?')) {
+            db.deleteUser(id);
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = "User berhasil dihapus!";
+            successAlert.style.display = "block";
+            renderUsersTable();
+            setTimeout(() => { successAlert.style.display = "none"; }, 3000);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Peminjaman - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html' class='active'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Data Peminjaman</h2>
+            <a href='tambah_peminjaman.html' class='btn-primary' style='text-decoration: none; padding: 10px 15px; border-radius: 5px;'>Tambah Peminjaman</a>
+        </div>
+
+        <div id="success-alert" class="alert alert-success" style="display: none; margin-bottom: 20px;"></div>
+
+        <div class='card'>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Peminjam</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Tgl Kembali Rencana</th>
+                        <th>Tgl Kembali Aktual</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id='peminjaman-table-body'>
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Show success message if redirected with param
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pesan')) {
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = urlParams.get('pesan');
+            successAlert.style.display = "block";
+            setTimeout(() => { successAlert.style.display = "none"; }, 4000);
+        }
+
+        renderLoansTable();
+    });
+
+    function renderLoansTable() {
+        const loans = db.getLoans();
+        const users = db.getUsers();
+        const tbody = document.getElementById('peminjaman-table-body');
+        tbody.innerHTML = '';
+
+        // Order by loan id DESC
+        const sortedLoans = [...loans].sort((a, b) => b.id - a.id);
+
+        if (sortedLoans.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Tidak ada data peminjaman.</td></tr>`;
+            return;
+        }
+
+        sortedLoans.forEach((loan, idx) => {
+            const user = users.find(u => u.id == loan.user_id);
+            const userName = user ? user.name : "Unknown";
+
+            let badgeClass = 'badge-blue';
+            let statusLabel = 'Aktif';
+            if (loan.status === 'dikembalikan') {
+                badgeClass = 'badge-green';
+                statusLabel = 'Dikembalikan';
+            } else if (loan.status === 'terlambat') {
+                badgeClass = 'badge-red';
+                statusLabel = 'Terlambat';
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${idx + 1}</td>
+                <td>${userName}</td>
+                <td>${loan.tgl_pinjam}</td>
+                <td>${loan.tgl_kembali_rencana}</td>
+                <td>${loan.tgl_kembali_aktual || '-'}</td>
+                <td><span class='${badgeClass}'>${statusLabel}</span></td>
+                <td>
+                    <div class='aksi'>
+                        <a href='detail_peminjaman.html?id=${loan.id}' class='btn-primary btn-kecil' style='text-decoration: none;'>Detail</a>
+                        ${loan.status === 'aktif' ? 
+                            `<a href='pengembalian.html?id=${loan.id}' class='btn-danger btn-kecil' style='text-decoration: none;'>Kembalikan</a>` : 
+                            ''
+                        }
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Data Kategori - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html' class='active'>📂 Kategori</a>
+            <a href='peminjaman.html'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Data Kategori</h2>
+            <a href='tambah_kategori.html' class='btn-primary' style='text-decoration: none; padding: 10px 15px; border-radius: 5px;'>Tambah Kategori</a>
+        </div>
+
+        <div id="success-alert" class="alert alert-success" style="display: none; margin-bottom: 20px;"></div>
+
+        <div class='card'>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Deskripsi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id='kategori-table-body'>
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Show delete success message if redirected with param
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pesan')) {
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = urlParams.get('pesan');
+            successAlert.style.display = "block";
+            setTimeout(() => { successAlert.style.display = "none"; }, 4000);
+        }
+
+        renderKategoriTable();
+    });
+
+    function renderKategoriTable() {
+        const categories = db.getCategories();
+        const tbody = document.getElementById('kategori-table-body');
+        tbody.innerHTML = '';
+
+        // Order by category id DESC
+        const sortedCats = [...categories].sort((a, b) => b.id - a.id);
+
+        if (sortedCats.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Tidak ada data kategori.</td></tr>`;
+            return;
+        }
+
+        sortedCats.forEach((cat, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${idx + 1}</td>
+                <td>${cat.nama}</td>
+                <td>${cat.deskripsi || '-'}</td>
+                <td>
+                    <div class='aksi'>
+                        <a href='edit_kategori.html?id=${cat.id}' class='btn-primary btn-kecil' style='text-decoration: none;'>Edit</a>
+                        <button onclick='deleteCategory(${cat.id})' class='btn-danger btn-kecil' style='border: none; cursor: pointer;'>Hapus</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteCategory(id) {
+        if (confirm('Yakin hapus kategori ini?')) {
+            db.deleteCategory(id);
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = "Kategori berhasil dihapus!";
+            successAlert.style.display = "block";
+            renderKategoriTable();
+            setTimeout(() => { successAlert.style.display = "none"; }, 3000);
+        }
+    }
+</script>
+</body>
+</html>

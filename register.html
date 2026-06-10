@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - LibraFlow</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="assets/js/mock-db.js"></script>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <a href="index.html" class="logo">📚 LibraFlow</a>
+            <h2>Daftar Akun</h2>
+            <p>Buat akun baru untuk mulai meminjam buku</p>
+        </div>
+
+        <div id="error-alert" class="alert alert-error" style="display: none;"></div>
+        <div id="success-alert" class="alert alert-success" style="display: none;"></div>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="name" required placeholder="Masukkan nama lengkap">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required placeholder="contoh@email.com">
+            </div>
+            <div class="form-group">
+                <label>No. Telepon</label>
+                <input type="text" id="phone" placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required placeholder="Minimal 6 karakter" minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary btn-besar w-full">Daftar</button>
+        </form>
+
+        <p class="auth-footer">Sudah punya akun? <a href="login.html">Masuk di sini</a></p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Redirect if already logged in
+        const currentUser = db.getCurrentUser();
+        if (currentUser) {
+            window.location.href = currentUser.role === 'admin' ? 'admin/dashboard.html' : 'member/dashboard.html';
+        }
+
+        const form = document.getElementById("register-form");
+        const errorAlert = document.getElementById("error-alert");
+        const successAlert = document.getElementById("success-alert");
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            errorAlert.style.display = "none";
+            successAlert.style.display = "none";
+
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const phone = document.getElementById("phone").value;
+            const password = document.getElementById("password").value;
+
+            // Check if email already exists
+            const existingUsers = db.getUsers();
+            if (existingUsers.some(u => u.email === email)) {
+                errorAlert.textContent = "Email sudah terdaftar!";
+                errorAlert.style.display = "block";
+                return;
+            }
+
+            // Add new user
+            db.addUser({
+                name: name,
+                email: email,
+                phone: phone,
+                password: password,
+                role: 'member'
+            });
+
+            successAlert.textContent = "Pendaftaran berhasil! Mengalihkan ke halaman login...";
+            successAlert.style.display = "block";
+            form.reset();
+
+            setTimeout(function() {
+                window.location.href = "login.html";
+            }, 2000);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang='id'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Proses Pengembalian - LibraFlow Admin</title>
+    <link rel='stylesheet' href='../assets/css/style.css'>
+    <script src='../assets/js/mock-db.js'></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('admin');
+</script>
+<div class='dashboard'>
+    <div class='sidebar'>
+        <div class='logo'>📚 LibraFlow</div>
+        <div class='sidebar-menu'>
+            <a href='dashboard.html'>📊 Dashboard</a>
+            <a href='buku.html'>📚 Buku</a>
+            <a href='kategori.html'>📂 Kategori</a>
+            <a href='peminjaman.html' class='active'>📋 Peminjaman</a>
+            <a href='users.html'>👥 Users</a>
+            <a href='denda.html'>💰 Denda</a>
+            <div class='sidebar-divider'></div>
+            <a href='#' id='btn-logout'>🚪 Logout</a>
+        </div>
+    </div>
+    <div class='main-content'>
+        <div class='page-header'>
+            <h2>Proses Pengembalian Buku</h2>
+        </div>
+
+        <div class='card' style="margin-bottom: 24px;">
+            <div class='form-group'>
+                <label>Nama Peminjam</label>
+                <p><strong id="borrower-name">-</strong></p>
+            </div>
+            <div class='form-row'>
+                <div class='form-group'>
+                    <label>Tanggal Pinjam</label>
+                    <p id="loan-date">-</p>
+                </div>
+                <div class='form-group'>
+                    <label>Batas Pengembalian (Rencana)</label>
+                    <p id="return-plan-date">-</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="return-form">
+            <div class='card'>
+                <div class='card-header'>
+                    <h3>Pilih Kondisi Buku Saat Dikembalikan</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Buku</th>
+                            <th>Kondisi Awal (Saat Dipinjam)</th>
+                            <th>Kondisi Kembali</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td id="book-title">-</td>
+                            <td><span class="badge badge-green">Baik</span></td>
+                            <td>
+                                <select id="kondisi-kembali" required style="width: auto; padding: 6px 12px; font-size: 13px;">
+                                    <option value="Baik">Baik (Normal)</option>
+                                    <option value="Rusak">Rusak (Denda Rp 100.000)</option>
+                                    <option value="Hilang">Hilang (Denda Rp 1.000.000 & Stok berkurang)</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type='submit' class='btn btn-primary'>Selesai & Simpan</button>
+                <a href='peminjaman.html' class='btn btn-danger' style="margin-left: 8px; text-decoration: none; padding: 10px 15px; border-radius: 5px;">Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Load Loan data
+        const urlParams = new URLSearchParams(window.location.search);
+        const loanId = parseInt(urlParams.get('id'));
+        const loan = db.getLoan(loanId);
+
+        if (!loan || loan.status !== 'aktif') {
+            window.location.href = 'peminjaman.html';
+            return;
+        }
+
+        const borrower = db.getUser(loan.user_id);
+        const book = db.getBook(loan.buku_id);
+
+        document.getElementById('borrower-name').textContent = borrower ? borrower.name : "Unknown";
+        document.getElementById('loan-date').textContent = loan.tgl_pinjam;
+        document.getElementById('return-plan-date').textContent = loan.tgl_kembali_rencana;
+        document.getElementById('book-title').textContent = book ? book.judul : "Unknown";
+
+        // Handle Return Form submission
+        document.getElementById('return-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!confirm('Konfirmasi pengembalian buku dengan kondisi di atas?')) return;
+
+            const kondisi = document.getElementById('kondisi-kembali').value;
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            // Calculate delay
+            let dendaKeterlambatan = 0;
+            let jumlahHari = 0;
+            let statusPeminjaman = 'dikembalikan';
+
+            const plansDate = new Date(loan.tgl_kembali_rencana);
+            const actualDate = new Date(todayStr);
+
+            if (actualDate > plansDate) {
+                statusPeminjaman = 'terlambat';
+                const diffTime = Math.abs(actualDate - plansDate);
+                jumlahHari = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                dendaKeterlambatan = jumlahHari * 10000; // Rp 10.000/day
+            }
+
+            // Calculate condition fine
+            let dendaKondisi = 0;
+            if (kondisi === 'Rusak') {
+                dendaKondisi = 100000;
+            } else if (kondisi === 'Hilang') {
+                dendaKondisi = 1000000;
+            }
+
+            const totalDenda = dendaKeterlambatan + dendaKondisi;
+
+            // Update Loan
+            db.updateLoan(loan.id, {
+                tgl_kembali_aktual: todayStr,
+                status: statusPeminjaman
+            });
+
+            // Update Book Stock if NOT lost (if lost, stock is already deducted and not returned)
+            if (kondisi !== 'Hilang' && book) {
+                // If it is returned, stock increments by 1 (since db.addLoan deducted 1)
+                // Note: db.updateLoan with status 'dikembalikan' automatically restores stock in mock-db.js.
+                // But let's verify if we need to do it here. In mock-db.js we have:
+                // if (oldStatus !== 'dikembalikan' && updated.status === 'dikembalikan') { restore stock }
+                // So if we updated the status to 'dikembalikan' (or 'terlambat' which does not trigger it), let's handle the stock correctly.
+                // Wait! If status is 'terlambat', it's also returned, so we should restore stock too!
+                // Let's make sure stock is restored in both cases.
+                // Since mock-db.js handles stock restore only for 'dikembalikan', if it is 'terlambat', we restore stock manually here:
+                if (statusPeminjaman === 'terlambat') {
+                    db.updateBook(book.id, { stok: book.stok + 1 });
+                }
+            } else if (kondisi === 'Hilang' && book) {
+                // If book is lost, we don't restore stock.
+                // If status was 'dikembalikan', mock-db.js would restore stock, so let's adjust if status was set to dikembalikan.
+                // Wait! If status is 'dikembalikan' but condition is 'Hilang', we should deduct the stock back.
+                // To keep it simple, let's manually adjust the stock here:
+                // Since db.updateLoan(loan.id, {status: 'dikembalikan'}) added 1 to stock:
+                if (statusPeminjaman === 'dikembalikan') {
+                    db.updateBook(book.id, { stok: book.stok - 1 }); // reverse the restore
+                }
+            }
+
+            // Create Fine if totalDenda > 0
+            if (totalDenda > 0) {
+                db.addFine({
+                    peminjaman_id: loan.id,
+                    jumlah_hari: jumlahHari,
+                    denda_harian: 10000,
+                    total: totalDenda,
+                    status: 'belum_bayar',
+                    tgl_bayar: null
+                });
+            }
+
+            window.location.href = 'peminjaman.html?pesan=Peminjaman berhasil dikembalikan. ' + 
+                (totalDenda > 0 ? `Denda yang dikenakan: Rp ${totalDenda.toLocaleString('id-ID')}` : '');
+        });
+    });
+</script>
+</body>
+</html>

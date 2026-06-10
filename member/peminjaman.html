@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peminjaman Saya - LibraFlow</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/mock-db.js"></script>
+</head>
+<body>
+<script>
+    // Auth Check
+    const currentUser = db.checkAuth('member');
+</script>
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="logo">📚 LibraFlow</div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html">📊 Dashboard</a>
+            <a href="buku.html">📚 Katalog Buku</a>
+            <a href="peminjaman.html" class="active">📋 Peminjaman Saya</a>
+            <a href="denda.html">💰 Denda Saya</a>
+            <div class="sidebar-divider"></div>
+            <a href="#" id="btn-logout">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Peminjaman Saya</h1>
+            <div class="user-info">Halo, <strong id="user-display-name">-</strong></div>
+        </div>
+
+        <div id="success-alert" class="alert alert-success" style="display: none; margin-bottom: 20px;"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Riwayat Peminjaman</h2>
+                <a href="tambah_peminjaman.html" class="btn btn-primary btn-kecil" style="text-decoration: none;">Pinjam Buku</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Tgl Pinjam</th>
+                        <th>Tgl Kembali Rencana</th>
+                        <th>Tgl Kembali Aktual</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="loans-table-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!currentUser) return;
+
+        // Display User Name
+        document.getElementById('user-display-name').textContent = currentUser.name;
+
+        // Logout handler
+        document.getElementById('btn-logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            db.logout();
+            window.location.href = '../login.html';
+        });
+
+        // Show success alert
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pesan')) {
+            const successAlert = document.getElementById("success-alert");
+            successAlert.textContent = urlParams.get('pesan');
+            successAlert.style.display = "block";
+            setTimeout(() => { successAlert.style.display = "none"; }, 4000);
+        }
+
+        // Load personal loans
+        const loans = db.getLoans().filter(l => l.user_id == currentUser.id);
+        const tbody = document.getElementById('loans-table-body');
+        tbody.innerHTML = '';
+
+        // Sort by tgl_pinjam descending
+        const sortedLoans = [...loans].sort((a, b) => new Date(b.tgl_pinjam) - new Date(a.tgl_pinjam));
+
+        if (sortedLoans.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #999;">Belum ada peminjaman</td></tr>`;
+        } else {
+            sortedLoans.forEach((loan, idx) => {
+                const tr = document.createElement('tr');
+                
+                let badgeClass = 'badge-blue';
+                let statusLabel = 'Aktif';
+                if (loan.status === 'dikembalikan') {
+                    badgeClass = 'badge-green';
+                    statusLabel = 'Dikembalikan';
+                } else if (loan.status === 'terlambat') {
+                    badgeClass = 'badge-red';
+                    statusLabel = 'Terlambat';
+                }
+
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${loan.tgl_pinjam}</td>
+                    <td>${loan.tgl_kembali_rencana}</td>
+                    <td>${loan.tgl_kembali_aktual || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${statusLabel}</span></td>
+                    <td>
+                        <a href="detail_peminjaman.html?id=${loan.id}" class="btn btn-primary btn-kecil" style="text-decoration: none;">Detail</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    });
+</script>
+</body>
+</html>
