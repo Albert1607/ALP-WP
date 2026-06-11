@@ -5,10 +5,13 @@ cek_member();
 $user_id = $_SESSION['user_id'];
 
 
-$query = "SELECT d.*, p.tgl_pinjam 
+$query = "SELECT d.*, p.tgl_pinjam, GROUP_CONCAT(b.judul SEPARATOR ', ') as list_buku 
           FROM denda d 
           JOIN peminjaman p ON d.peminjaman_id = p.peminjaman_id 
+          LEFT JOIN detail_peminjaman dp ON p.peminjaman_id = dp.peminjaman_id 
+          LEFT JOIN buku b ON dp.buku_id = b.buku_id 
           WHERE p.user_id = $user_id 
+          GROUP BY d.denda_id 
           ORDER BY p.tgl_pinjam DESC";
 $result = mysqli_query($conn, $query);
 ?>
@@ -50,6 +53,7 @@ $result = mysqli_query($conn, $query);
                     <tr>
                         <th>No</th>
                         <th>Tgl Pinjam</th>
+                        <th>Buku</th>
                         <th>Jumlah Hari Telat</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -60,13 +64,14 @@ $result = mysqli_query($conn, $query);
                 <tbody>
                     <?php if (mysqli_num_rows($result) == 0): ?>
                         <tr>
-                            <td colspan="7" style="text-align: center; color: #999;">Tidak ada denda</td>
+                            <td colspan="8" style="text-align: center; color: #999;">Tidak ada denda</td>
                         </tr>
                     <?php else: ?>
                         <?php $no = 1; while ($row = mysqli_fetch_assoc($result)): ?>
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><?= date('d-m-Y', strtotime($row['tgl_pinjam'])) ?></td>
+                            <td><?= htmlspecialchars($row['list_buku']) ?></td>
                             <td><?= $row['jumlah_hari'] ?> hari</td>
                             <td>Rp <?= number_format($row['denda_harian'], 0, ',', '.') ?></td>
                             <td>Rp <?= number_format($row['total'], 0, ',', '.') ?></td>

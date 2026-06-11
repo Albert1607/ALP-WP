@@ -40,6 +40,7 @@ cek_admin();
                     <tr>
                         <th>No</th>
                         <th>Nama</th>
+                        <th>Buku</th>
                         <th>Jumlah Hari</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -50,13 +51,14 @@ cek_admin();
                 </thead>
                 <tbody>
                     <?php
-                    $query = mysqli_query($conn, "SELECT d.*, u.name FROM denda d JOIN peminjaman p ON d.peminjaman_id = p.peminjaman_id JOIN users u ON p.user_id = u.user_id ORDER BY d.denda_id DESC");
+                    $query = mysqli_query($conn, "SELECT d.*, u.name, GROUP_CONCAT(b.judul SEPARATOR ', ') as list_buku FROM denda d JOIN peminjaman p ON d.peminjaman_id = p.peminjaman_id JOIN users u ON p.user_id = u.user_id LEFT JOIN detail_peminjaman dp ON p.peminjaman_id = dp.peminjaman_id LEFT JOIN buku b ON dp.buku_id = b.buku_id GROUP BY d.denda_id ORDER BY d.denda_id DESC");
                     $no = 1;
                     while ($row = mysqli_fetch_assoc($query)):
                     ?>
                     <tr>
                         <td><?= $no++ ?></td>
                         <td><?= htmlspecialchars($row['name']) ?></td>
+                        <td><?= htmlspecialchars($row['list_buku']) ?></td>
                         <td><?= $row['jumlah_hari'] ?></td>
                         <td>Rp <?= number_format($row['denda_harian'], 0, ',', '.') ?></td>
                         <td>Rp <?= number_format($row['total'], 0, ',', '.') ?></td>

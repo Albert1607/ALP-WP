@@ -40,6 +40,7 @@
                     <tr>
                         <th>No</th>
                         <th>Tgl Pinjam</th>
+                        <th>Buku</th>
                         <th>Jumlah Hari Telat</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -82,11 +83,13 @@
         const sortedFines = [...fines].sort((a, b) => b.id - a.id);
 
         if (sortedFines.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #999;">Tidak ada denda</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #999;">Tidak ada denda</td></tr>`;
         } else {
             sortedFines.forEach((fine, idx) => {
                 const loan = db.getLoan(fine.peminjaman_id);
                 const tglPinjam = loan ? loan.tgl_pinjam : "-";
+                const book = loan ? db.getBook(loan.buku_id) : null;
+                const bookTitle = book ? book.judul : "Unknown";
 
                 const tr = document.createElement('tr');
                 
@@ -100,6 +103,7 @@
                 tr.innerHTML = `
                     <td>${idx + 1}</td>
                     <td>${tglPinjam}</td>
+                    <td>${bookTitle}</td>
                     <td>${fine.jumlah_hari} hari</td>
                     <td>Rp ${fine.denda_harian.toLocaleString('id-ID')}</td>
                     <td>Rp ${fine.total.toLocaleString('id-ID')}</td>

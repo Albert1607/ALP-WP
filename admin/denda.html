@@ -39,6 +39,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama</th>
+                        <th>Buku</th>
                         <th>Jumlah Hari</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -86,6 +87,8 @@
             const loan = loans.find(l => l.id == fine.peminjaman_id);
             const borrower = loan ? users.find(u => u.id == loan.user_id) : null;
             const borrowerName = borrower ? borrower.name : "Unknown";
+            const book = loan ? db.getBook(loan.buku_id) : null;
+            const bookTitle = book ? book.judul : "Unknown";
 
             const tr = document.createElement('tr');
             
@@ -99,6 +102,7 @@
             tr.innerHTML = `
                 <td>${idx + 1}</td>
                 <td>${borrowerName}</td>
+                <td>${bookTitle}</td>
                 <td>${fine.jumlah_hari}</td>
                 <td>Rp ${fine.denda_harian.toLocaleString('id-ID')}</td>
                 <td>Rp ${fine.total.toLocaleString('id-ID')}</td>
