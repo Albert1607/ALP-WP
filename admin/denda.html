@@ -40,6 +40,7 @@
                         <th>No</th>
                         <th>Nama</th>
                         <th>Buku</th>
+                        <th>Alasan</th>
                         <th>Jumlah Hari</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -89,6 +90,7 @@
             const borrowerName = borrower ? borrower.name : "Unknown";
             const book = loan ? db.getBook(loan.buku_id) : null;
             const bookTitle = book ? book.judul : "Unknown";
+            const reason = fine.jumlah_hari > 0 ? `Terlambat ${fine.jumlah_hari} hari` : "Kerusakan/Lainnya";
 
             const tr = document.createElement('tr');
             
@@ -103,6 +105,7 @@
                 <td>${idx + 1}</td>
                 <td>${borrowerName}</td>
                 <td>${bookTitle}</td>
+                <td>${reason}</td>
                 <td>${fine.jumlah_hari}</td>
                 <td>Rp ${fine.denda_harian.toLocaleString('id-ID')}</td>
                 <td>Rp ${fine.total.toLocaleString('id-ID')}</td>

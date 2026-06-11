@@ -41,6 +41,7 @@ cek_admin();
                         <th>No</th>
                         <th>Nama</th>
                         <th>Buku</th>
+                        <th>Alasan</th>
                         <th>Jumlah Hari</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -54,11 +55,27 @@ cek_admin();
                     $query = mysqli_query($conn, "SELECT d.*, u.name, GROUP_CONCAT(b.judul SEPARATOR ', ') as list_buku FROM denda d JOIN peminjaman p ON d.peminjaman_id = p.peminjaman_id JOIN users u ON p.user_id = u.user_id LEFT JOIN detail_peminjaman dp ON p.peminjaman_id = dp.peminjaman_id LEFT JOIN buku b ON dp.buku_id = b.buku_id GROUP BY d.denda_id ORDER BY d.denda_id DESC");
                     $no = 1;
                     while ($row = mysqli_fetch_assoc($query)):
+                        $alasan_arr = [];
+                        if ($row['jumlah_hari'] > 0) {
+                            $alasan_arr[] = "Terlambat " . $row['jumlah_hari'] . " hari";
+                        }
+                        
+                        $pem_id = $row['peminjaman_id'];
+                        $q_kondisi = mysqli_query($conn, "SELECT kondisi_kembali, COUNT(*) as jml FROM detail_peminjaman WHERE peminjaman_id = $pem_id AND kondisi_kembali IN ('Rusak', 'Hilang') GROUP BY kondisi_kembali");
+                        while ($k_row = mysqli_fetch_assoc($q_kondisi)) {
+                            $alasan_arr[] = "Buku " . $k_row['kondisi_kembali'] . " (" . $k_row['jml'] . "x)";
+                        }
+                        
+                        $alasan = implode(", ", $alasan_arr);
+                        if (empty($alasan)) {
+                            $alasan = "Keterlambatan / Lainnya";
+                        }
                     ?>
                     <tr>
                         <td><?= $no++ ?></td>
                         <td><?= htmlspecialchars($row['name']) ?></td>
                         <td><?= htmlspecialchars($row['list_buku']) ?></td>
+                        <td><?= htmlspecialchars($alasan) ?></td>
                         <td><?= $row['jumlah_hari'] ?></td>
                         <td>Rp <?= number_format($row['denda_harian'], 0, ',', '.') ?></td>
                         <td>Rp <?= number_format($row['total'], 0, ',', '.') ?></td>

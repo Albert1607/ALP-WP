@@ -54,6 +54,7 @@ $result = mysqli_query($conn, $query);
                         <th>No</th>
                         <th>Tgl Pinjam</th>
                         <th>Buku</th>
+                        <th>Alasan</th>
                         <th>Jumlah Hari Telat</th>
                         <th>Denda/Hari</th>
                         <th>Total</th>
@@ -64,14 +65,31 @@ $result = mysqli_query($conn, $query);
                 <tbody>
                     <?php if (mysqli_num_rows($result) == 0): ?>
                         <tr>
-                            <td colspan="8" style="text-align: center; color: #999;">Tidak ada denda</td>
+                            <td colspan="9" style="text-align: center; color: #999;">Tidak ada denda</td>
                         </tr>
                     <?php else: ?>
-                        <?php $no = 1; while ($row = mysqli_fetch_assoc($result)): ?>
+                        <?php $no = 1; while ($row = mysqli_fetch_assoc($result)): 
+                            $alasan_arr = [];
+                            if ($row['jumlah_hari'] > 0) {
+                                $alasan_arr[] = "Terlambat " . $row['jumlah_hari'] . " hari";
+                            }
+                            
+                            $pem_id = $row['peminjaman_id'];
+                            $q_kondisi = mysqli_query($conn, "SELECT kondisi_kembali, COUNT(*) as jml FROM detail_peminjaman WHERE peminjaman_id = $pem_id AND kondisi_kembali IN ('Rusak', 'Hilang') GROUP BY kondisi_kembali");
+                            while ($k_row = mysqli_fetch_assoc($q_kondisi)) {
+                                $alasan_arr[] = "Buku " . $k_row['kondisi_kembali'] . " (" . $k_row['jml'] . "x)";
+                            }
+                            
+                            $alasan = implode(", ", $alasan_arr);
+                            if (empty($alasan)) {
+                                $alasan = "Keterlambatan / Lainnya";
+                            }
+                        ?>
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><?= date('d-m-Y', strtotime($row['tgl_pinjam'])) ?></td>
                             <td><?= htmlspecialchars($row['list_buku']) ?></td>
+                            <td><?= htmlspecialchars($alasan) ?></td>
                             <td><?= $row['jumlah_hari'] ?> hari</td>
                             <td>Rp <?= number_format($row['denda_harian'], 0, ',', '.') ?></td>
                             <td>Rp <?= number_format($row['total'], 0, ',', '.') ?></td>
