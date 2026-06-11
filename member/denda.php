@@ -18,20 +18,20 @@ $result = mysqli_query($conn, $query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Denda Saya - LibraFlow</title>
-    <link rel="stylesheet" href="/ALP-WP/assets/css/style.css">
+    <link rel="stylesheet" href="/ALP-WP/assets/css/style.css?v=2">
 </head>
 <body>
 
 <div class="dashboard">
     <div class="sidebar">
-        <div class="logo">📚 LibraFlow</div>
+        <div class="logo"> LibraFlow</div>
         <div class="sidebar-menu">
-            <a href="/ALP-WP/member/dashboard.php">📊 Dashboard</a>
-            <a href="/ALP-WP/member/buku.php">📚 Katalog Buku</a>
-            <a href="/ALP-WP/member/peminjaman.php">📋 Peminjaman Saya</a>
-            <a href="/ALP-WP/member/denda.php" class="active">💰 Denda Saya</a>
+            <a href="/ALP-WP/member/dashboard.php"> Dashboard</a>
+            <a href="/ALP-WP/member/buku.php"> Katalog Buku</a>
+            <a href="/ALP-WP/member/peminjaman.php"> Peminjaman Saya</a>
+            <a href="/ALP-WP/member/denda.php" class="active"> Denda Saya</a>
             <div class="sidebar-divider"></div>
-            <a href="/ALP-WP/logout.php">🚪 Logout</a>
+            <a href="/ALP-WP/logout.php"> Logout</a>
         </div>
     </div>
 
@@ -88,5 +88,6 @@ $result = mysqli_query($conn, $query);
     </div>
 </div>
 
+<script src="../assets/js/main.js?v=9"></script>
 </body>
 </html>

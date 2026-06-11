@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="auth-container">
     <div class="auth-box">
         <div class="auth-header">
-            <a href="index.php" class="logo">📚 LibraFlow</a>
+            <a href="index.php" class="logo"> LibraFlow</a>
             <h2>Daftar Akun</h2>
             <p>Buat akun baru untuk mulai meminjam buku</p>
         </div>

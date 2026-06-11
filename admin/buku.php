@@ -10,21 +10,21 @@ $query = mysqli_query($conn, "SELECT b.*, k.nama as nama_kategori FROM buku b LE
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>Data Buku - LibraFlow Admin</title>
-    <link rel='stylesheet' href='/ALP-WP/assets/css/style.css'>
+    <link rel='stylesheet' href='/ALP-WP/assets/css/style.css?v=2'>
 </head>
 <body>
 <div class='dashboard'>
         <div class='sidebar'>
-        <div class='logo'>📚 LibraFlow</div>
+        <div class='logo'> LibraFlow</div>
         <div class='sidebar-menu'>
-            <a href='dashboard.php' class=''>📊 Dashboard</a>
-            <a href='buku.php' class='active'>📚 Buku</a>
-            <a href='kategori.php' class=''>📂 Kategori</a>
-            <a href='peminjaman.php' class=''>📋 Peminjaman</a>
-            <a href='users.php' class=''>👥 Users</a>
-            <a href='denda.php' class=''>💰 Denda</a>
+            <a href='dashboard.php' class=''> Dashboard</a>
+            <a href='buku.php' class='active'> Buku</a>
+            <a href='kategori.php' class=''> Kategori</a>
+            <a href='peminjaman.php' class=''> Peminjaman</a>
+            <a href='users.php' class=''> Users</a>
+            <a href='denda.php' class=''> Denda</a>
             <div class='sidebar-divider'></div>
-            <a href='../logout.php'>🚪 Logout</a>
+            <a href='../logout.php'> Logout</a>
         </div>
     </div>
 <div class='main-content'>
@@ -74,6 +74,7 @@ $query = mysqli_query($conn, "SELECT b.*, k.nama as nama_kategori FROM buku b LE
         </div>
     </div>
 </div>
+<script src="../assets/js/main.js?v=9"></script>
 </body>
 </html>
 

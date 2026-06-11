@@ -11,7 +11,7 @@
 
 <nav class="navbar">
     <div class="container">
-        <div class="logo">📚 LibraFlow</div>
+        <div class="logo"> LibraFlow</div>
         <ul class="nav-menu">
             <li><a href="#beranda">Beranda</a></li>
             <li><a href="#kategori">Kategori</a></li>
@@ -83,21 +83,21 @@
         <div class="langkah-grid">
             <div class="langkah">
                 <div class="langkah-nomor">1</div>
-                <div class="langkah-icon">📝</div>
+                <div class="langkah-icon"></div>
                 <h3>Daftar Akun</h3>
                 <p>Buat akun gratis dengan email dan nomor telepon kamu.</p>
             </div>
             <div class="langkah-panah">→</div>
             <div class="langkah">
                 <div class="langkah-nomor">2</div>
-                <div class="langkah-icon">🔍</div>
+                <div class="langkah-icon"></div>
                 <h3>Cari Buku</h3>
                 <p>Cari buku berdasarkan judul, pengarang, atau kategori.</p>
             </div>
             <div class="langkah-panah">→</div>
             <div class="langkah">
                 <div class="langkah-nomor">3</div>
-                <div class="langkah-icon">✅</div>
+                <div class="langkah-icon"></div>
                 <h3>Pinjam & Nikmati</h3>
                 <p>Konfirmasi peminjaman dan ambil buku di perpustakaan.</p>
             </div>
@@ -117,7 +117,7 @@
     <div class="container">
         <div class="footer-isi">
             <div class="footer-brand">
-                <div class="logo">📚 LibraFlow</div>
+                <div class="logo"> LibraFlow</div>
                 <p>Sistem Peminjaman Buku Digital untuk perpustakaan modern.</p>
             </div>
             <div class="footer-link">
@@ -155,17 +155,17 @@
         // Render Categories
         const catGrid = document.getElementById("kategori-grid");
         const icons = {
-            "Fiksi": "📖",
-            "Sains": "🔬",
-            "Teknologi": "💻",
-            "Sejarah": "🏛️",
-            "Psikologi": "🧠",
-            "Agama": "🌙"
+            "Fiksi": "",
+            "Sains": "",
+            "Teknologi": "",
+            "Sejarah": "️",
+            "Psikologi": "",
+            "Agama": ""
         };
         categories.forEach(c => {
             const card = document.createElement("div");
             card.className = "kategori-card";
-            const icon = icons[c.nama] || "📚";
+            const icon = icons[c.nama] || "";
             card.innerHTML = `
                 <div class="kategori-icon">${icon}</div>
                 <div class="kategori-nama">${c.nama}</div>
@@ -183,11 +183,11 @@
             const card = document.createElement("div");
             card.className = "buku-card";
             card.innerHTML = `
-                <div class="buku-cover">📗</div>
+                <div class="buku-cover"></div>
                 <div class="buku-info">
                     <span class="buku-kategori">${catName}</span>
                     <h3 class="buku-judul">${b.judul}</h3>
-                    <p class="buku-pengarang">✍️ ${b.penulis}</p>
+                    <p class="buku-pengarang">️ ${b.penulis}</p>
                     <div class="buku-footer">
                         ${b.stok > 0 ? 
                             `<span class="stok tersedia">Stok: ${b.stok}</span>

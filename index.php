@@ -5,12 +5,12 @@ $total_anggota = 320;
 $total_dipinjam = 85;
 
 $kategori = [
-    ["nama" => "Fiksi",      "icon" => "📖"],
-    ["nama" => "Sains",      "icon" => "🔬"],
-    ["nama" => "Teknologi",  "icon" => "💻"],
-    ["nama" => "Sejarah",    "icon" => "🏛️"],
-    ["nama" => "Psikologi",  "icon" => "🧠"],
-    ["nama" => "Agama",      "icon" => "🌙"],
+    ["nama" => "Fiksi",      "icon" => ""],
+    ["nama" => "Sains",      "icon" => ""],
+    ["nama" => "Teknologi",  "icon" => ""],
+    ["nama" => "Sejarah",    "icon" => "️"],
+    ["nama" => "Psikologi",  "icon" => ""],
+    ["nama" => "Agama",      "icon" => ""],
 ];
 
 $buku_populer = [
@@ -33,7 +33,7 @@ $buku_populer = [
 
 <nav class="navbar">
     <div class="container">
-        <div class="logo">📚 <?= $site_name ?></div>
+        <div class="logo"> <?= $site_name ?></div>
         <ul class="nav-menu">
             <li><a href="#beranda">Beranda</a></li>
             <li><a href="#kategori">Kategori</a></li>
@@ -103,11 +103,11 @@ $buku_populer = [
         <div class="buku-grid">
             <?php foreach ($buku_populer as $b): ?>
             <div class="buku-card">
-                <div class="buku-cover">📗</div>
+                <div class="buku-cover"></div>
                 <div class="buku-info">
                     <span class="buku-kategori"><?= $b['kategori'] ?></span>
                     <h3 class="buku-judul"><?= $b['judul'] ?></h3>
-                    <p class="buku-pengarang">✍️ <?= $b['pengarang'] ?></p>
+                    <p class="buku-pengarang">️ <?= $b['pengarang'] ?></p>
                     <div class="buku-footer">
                         <?php if ($b['stok'] > 0): ?>
                             <span class="stok tersedia">Stok: <?= $b['stok'] ?></span>
@@ -133,21 +133,21 @@ $buku_populer = [
         <div class="langkah-grid">
             <div class="langkah">
                 <div class="langkah-nomor">1</div>
-                <div class="langkah-icon">📝</div>
+                <div class="langkah-icon"></div>
                 <h3>Daftar Akun</h3>
                 <p>Buat akun gratis dengan email dan nomor telepon kamu.</p>
             </div>
             <div class="langkah-panah">→</div>
             <div class="langkah">
                 <div class="langkah-nomor">2</div>
-                <div class="langkah-icon">🔍</div>
+                <div class="langkah-icon"></div>
                 <h3>Cari Buku</h3>
                 <p>Cari buku berdasarkan judul, pengarang, atau kategori.</p>
             </div>
             <div class="langkah-panah">→</div>
             <div class="langkah">
                 <div class="langkah-nomor">3</div>
-                <div class="langkah-icon">✅</div>
+                <div class="langkah-icon"></div>
                 <h3>Pinjam & Nikmati</h3>
                 <p>Konfirmasi peminjaman dan ambil buku di perpustakaan.</p>
             </div>
@@ -169,7 +169,7 @@ $buku_populer = [
     <div class="container">
         <div class="footer-isi">
             <div class="footer-brand">
-                <div class="logo">📚 <?= $site_name ?></div>
+                <div class="logo"> <?= $site_name ?></div>
                 <p>Sistem Peminjaman Buku Digital untuk perpustakaan modern.</p>
             </div>
             <div class="footer-link">

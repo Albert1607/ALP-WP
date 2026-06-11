@@ -32,20 +32,20 @@ $result4 = mysqli_query($conn, $query4);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LibraFlow</title>
-    <link rel="stylesheet" href="/ALP-WP/assets/css/style.css">
+    <link rel="stylesheet" href="/ALP-WP/assets/css/style.css?v=2">
 </head>
 <body>
 
 <div class="dashboard">
     <div class="sidebar">
-        <div class="logo">📚 LibraFlow</div>
+        <div class="logo"> LibraFlow</div>
         <div class="sidebar-menu">
-            <a href="/ALP-WP/member/dashboard.php" class="active">📊 Dashboard</a>
-            <a href="/ALP-WP/member/buku.php">📚 Katalog Buku</a>
-            <a href="/ALP-WP/member/peminjaman.php">📋 Peminjaman Saya</a>
-            <a href="/ALP-WP/member/denda.php">💰 Denda Saya</a>
+            <a href="/ALP-WP/member/dashboard.php" class="active"> Dashboard</a>
+            <a href="/ALP-WP/member/buku.php"> Katalog Buku</a>
+            <a href="/ALP-WP/member/peminjaman.php"> Peminjaman Saya</a>
+            <a href="/ALP-WP/member/denda.php"> Denda Saya</a>
             <div class="sidebar-divider"></div>
-            <a href="/ALP-WP/logout.php">🚪 Logout</a>
+            <a href="/ALP-WP/logout.php"> Logout</a>
         </div>
     </div>
 
@@ -58,17 +58,17 @@ $result4 = mysqli_query($conn, $query4);
         
         <div class="stat-cards" style="grid-template-columns: repeat(3, 1fr);">
             <div class="stat-card">
-                <div class="stat-icon">📖</div>
+                <div class="stat-icon"></div>
                 <div class="stat-angka"><?= $aktif ?></div>
                 <div class="stat-label">Peminjaman Aktif</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">📚</div>
+                <div class="stat-icon"></div>
                 <div class="stat-angka"><?= $total_pinjam ?></div>
                 <div class="stat-label">Total Dipinjam</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">💰</div>
+                <div class="stat-icon"></div>
                 <div class="stat-angka">Rp <?= number_format($total_denda, 0, ',', '.') ?></div>
                 <div class="stat-label">Denda Belum Bayar</div>
             </div>
@@ -114,5 +114,6 @@ $result4 = mysqli_query($conn, $query4);
     </div>
 </div>
 
+<script src="../assets/js/main.js?v=9"></script>
 </body>
 </html>

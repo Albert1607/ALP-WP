@@ -43,7 +43,7 @@ $default_kembali = date('d-m-Y', strtotime('+7 days'));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pinjam Buku - LibraFlow</title>
-    <link rel="stylesheet" href="/ALP-WP/assets/css/style.css">
+    <link rel="stylesheet" href="/ALP-WP/assets/css/style.css?v=2">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
@@ -51,14 +51,14 @@ $default_kembali = date('d-m-Y', strtotime('+7 days'));
 
 <div class="dashboard">
     <div class="sidebar">
-        <div class="logo">📚 LibraFlow</div>
+        <div class="logo"> LibraFlow</div>
         <div class="sidebar-menu">
-            <a href="/ALP-WP/member/dashboard.php">📊 Dashboard</a>
-            <a href="/ALP-WP/member/buku.php">📚 Katalog Buku</a>
-            <a href="/ALP-WP/member/peminjaman.php" class="active">📋 Peminjaman Saya</a>
-            <a href="/ALP-WP/member/denda.php">💰 Denda Saya</a>
+            <a href="/ALP-WP/member/dashboard.php"> Dashboard</a>
+            <a href="/ALP-WP/member/buku.php"> Katalog Buku</a>
+            <a href="/ALP-WP/member/peminjaman.php" class="active"> Peminjaman Saya</a>
+            <a href="/ALP-WP/member/denda.php"> Denda Saya</a>
             <div class="sidebar-divider"></div>
-            <a href="/ALP-WP/logout.php">🚪 Logout</a>
+            <a href="/ALP-WP/logout.php"> Logout</a>
         </div>
     </div>
 
@@ -131,5 +131,6 @@ $default_kembali = date('d-m-Y', strtotime('+7 days'));
         defaultDate: new Date().fp_incr(7) // 7 hari ke depan
     });
 </script>
+<script src="../assets/js/main.js?v=9"></script>
 </body>
 </html>

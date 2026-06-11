@@ -212,8 +212,8 @@ document.addEventListener("DOMContentLoaded", function() {
             const mobileHeader = document.createElement('div');
             mobileHeader.className = 'mobile-header';
             mobileHeader.innerHTML = `
-                <button class="menu-toggle" id="lf-mobile-menu-btn" style="background: #16a34a; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 13px;">☰ Menu</button>
-                <span class="mobile-logo" style="font-weight: bold; font-size: 15px; color: #fff;">📚 LibraFlow</span>
+                <button class="menu-toggle" id="lf-mobile-menu-btn" style="background: #16a34a; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 13px;"> Menu</button>
+                <span class="mobile-logo" style="font-weight: bold; font-size: 15px; color: #fff;"> LibraFlow</span>
             `;
             
             // Prepend mobile header to main-content
